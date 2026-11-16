@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#243B53">
+  <meta name="description" content="A simple laundry load tracker for dorm students.">
+  <title>Laundry Tracker</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-icon">▦</span><span>Laundry <b>Tracker</b></span></div>
+      <nav aria-label="Main navigation">
+        <button class="nav-link active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+        <button class="nav-link" data-page="track">⌕ <span>Track Laundry</span></button>
+        <button class="nav-link" data-page="add">＋ <span>Add Laundry Load</span></button>
+        <button class="nav-link" data-page="records">▤ <span>Laundry Records</span></button>
+        <button class="nav-link" data-page="history">◷ <span>Laundry History</span></button>
+        <button class="nav-link" data-page="settings">⚙ <span>Settings</span></button>
+      </nav>
+      <div class="sidebar-note"><span class="dot"></span> Your laundry, organized.</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-button menu-toggle" id="menuToggle" aria-label="Open navigation">☰</button>
+        <div><p class="eyebrow" id="topEyebrow">YOUR LAUNDRY, AT A GLANCE</p><h1 id="pageTitle">Dashboard</h1></div>
+        <div class="top-actions"><span class="today" id="todayLabel"></span><button class="button button-primary" id="topAdd">＋ New Load</button></div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="welcome-card">
+          <div><p class="eyebrow light">WELCOME TO LAUNDRY TRACKER</p><h2>A fresh start, one load at a time.</h2><p>Keep your drop-offs, laundry progress, and pickups in one simple place.</p>
+            <div class="welcome-actions"><button class="button button-white" data-go="add">＋ Add Laundry Load</button><button class="button button-outline-light" data-go="track">Track a Load</button></div>
+          </div><div class="washer-art" aria-hidden="true">◉</div>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card"><span class="stat-icon blue">▤</span><p>Total Loads</p><strong id="statTotal">0</strong><small>All recorded loads</small></article>
+          <article class="stat-card"><span class="stat-icon orange">◷</span><p>Pending Loads</p><strong id="statPending">0</strong><small>Waiting to be processed</small></article>
+          <article class="stat-card"><span class="stat-icon purple">↻</span><p>Processing</p><strong id="statProcessing">0</strong><small>Currently being washed or dried</small></article>
+          <article class="stat-card"><span class="stat-icon green">✓</span><p>Ready for Pickup</p><strong id="statReady">0</strong><small>Waiting for collection</small></article>
+        </div>
+        <div class="content-grid">
+          <article class="panel"><div class="panel-heading"><div><h3>Recent Laundry Loads</h3><p>Your latest laundry activity</p></div><button class="text-button" data-go="records">View all →</button></div><div id="recentLoads"></div></article>
+          <article class="panel"><div class="panel-heading"><div><h3>Recent Activity</h3><p>Updates from your laundry records</p></div></div><div id="recentActivity" class="activity-list"></div></article>
+        </div>
+      </section>
+
+      <section class="page" id="page-add">
+        <div class="section-intro"><h2>Add a laundry load</h2><p>Enter the details below. A unique Load Code will be generated automatically.</p></div>
+        <form id="laundryForm" class="panel form-panel">
+          <div class="form-grid">
+            <label>Student name *<input name="studentName" required maxlength="70" placeholder="e.g. Alex Santos"></label>
+            <label>Laundry description *<input name="laundryDescription" required maxlength="120" placeholder="e.g. Uniforms and casual clothes"></label>
+            <label>Number of laundry bags *<input name="numberOfBags" type="number" min="1" step="1" required value="1"></label>
+            <label>Estimated weight (kg)<input name="estimatedWeight" type="number" min="0" step="0.1" placeholder="Optional"></label>
+            <label>Drop-off date *<input name="dropOffDate" type="date" required></label>
+            <label>Drop-off time *<input name="dropOffTime" type="time" required></label>
+            <label>Expected pickup date *<input name="expectedPickupDate" type="date" required></label>
+            <label>Expected pickup time *<input name="expectedPickupTime" type="time" required></label>
+            <label class="full">Additional notes<textarea name="notes" rows="3" maxlength="500" placeholder="Optional notes about this load"></textarea></label>
+          </div>
+          <div class="form-actions"><button type="reset" class="button button-secondary">Reset Form</button><button type="button" class="button button-secondary" data-go="dashboard">Cancel</button><button class="button button-primary" type="submit">Save Laundry Load →</button></div>
+        </form>
+      </section>
+
+      <section class="page" id="page-track">
+        <div class="section-intro"><h2>Track your laundry</h2><p>Enter the Load Code provided when the laundry load was recorded.</p></div>
+        <form id="trackForm" class="track-search panel"><div><label for="trackCode">Your Load Code</label><input id="trackCode" placeholder="e.g. LND-2026-0001" autocomplete="off" required></div><button class="button button-primary">Track Laundry →</button></form>
+        <div id="trackResult" class="track-result"></div>
+        <p class="privacy-note">For privacy, tracking displays only the record matching the Load Code you enter. This demo stores records in this browser only.</p>
+      </section>
+
+      <section class="page" id="page-records">
+        <div class="section-intro split"><div><h2>Laundry records</h2><p>Manage all active laundry loads saved on this device.</p></div><button class="button button-primary" data-go="add">＋ Add Load</button></div>
+        <div class="panel filters"><input id="recordSearch" placeholder="Search Load Code or student name…"><select id="statusFilter"><option value="">All statuses</option><option>Received / Dropped Off</option><option>Washing</option><option>Drying</option><option>Ready for Pickup</option></select><input id="dateFilter" type="date" aria-label="Filter by drop-off date"><button class="button button-secondary" id="clearFilters">Clear</button></div>
+        <div class="panel table-panel" id="recordsTable"></div>
+      </section>
+
+      <section class="page" id="page-history">
+        <div class="section-intro"><h2>Laundry history</h2><p>Completed and cancelled loads are kept here for reference.</p></div>
+        <div class="panel filters"><input id="historySearch" placeholder="Search past records…"><select id="historySort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div>
+        <div class="panel table-panel" id="historyTable"></div>
+      </section>
+
+      <section class="page" id="page-settings">
+        <div class="section-intro"><h2>Settings</h2><p>Manage your app preferences and local laundry data.</p></div>
+        <div class="settings-grid">
+          <article class="panel setting-card"><h3>Application information</h3><p><b>Laundry Tracker</b> · Version 1.0.0</p><p>A simple laundry load tracker for dorm students.</p><p>Installation: <span id="installStatus">Checking…</span></p><button class="button button-primary" id="settingsInstall">Install App</button></article>
+          <article class="panel setting-card"><h3>Display settings</h3><p>Choose the appearance of the application.</p><label class="inline-label">Theme <select id="themeSelect"><option value="light">Light mode</option><option value="dark">Dark mode</option></select></label></article>
+          <article class="panel setting-card"><h3>Export your data</h3><p>Download a copy of your records for backup.</p><div class="button-row"><button class="button button-secondary" id="exportJSON">Export JSON</button><button class="button button-secondary" id="exportCSV">Export CSV</button></div></article>
+          <article class="panel setting-card danger-zone"><h3>Reset local data</h3><p>Remove saved records and activities from this browser. This cannot be undone.</p><button class="button button-danger" id="clearData">Clear Application Data</button><button class="text-button" id="resetSamples">Reset Sample Data</button></article>
+        </div>
+      </section>
+      <footer> Laundry Tracker <span>•</span> Local device storage <span>•</span> v1.0.0</footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" id="modalClose" aria-label="Close">×</button><div id="modalContent"></div></div></div>
+  <div class="offline-banner" id="offlineBanner" hidden>You are offline. Saved data on this device remains available.</div>
+  <div class="update-banner" id="updateBanner" hidden>A new version is available. <button id="refreshApp">Refresh</button></div>
+  <script src="./script.js" defer></script>
+</body>
+</html>
